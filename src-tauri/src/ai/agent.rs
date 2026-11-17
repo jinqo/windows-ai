@@ -70,7 +70,10 @@ fn emit(p: &RunParams, payload: serde_json::Value) {
 pub async fn run(p: RunParams) -> AppResult<()> {
     let result = match &p.provider {
         Some(provider) => run_inner(&p, provider.clone()).await,
-        None => super::claude_code::run_conversation(&p, None).await,
+        None => match super::claude_code::run_conversation(&p, None).await {
+            Err(e) if should_fall_back(&e) && fallback_available(&p.cfg) => run_fallback(&p, e).await,
+            other => other,
+        },
     };
     match &result {
         Ok(()) => emit(&p, json!({"type": "done"})),
@@ -78,6 +81,40 @@ pub async fn run(p: RunParams) -> AppResult<()> {
         Err(e) => emit(&p, json!({"type": "error", "error": e})),
     }
     result
+}
+
+/// Claude Code failures that a free fallback can answer instead
+/// (usage limit, signed out, not installed, timeouts). Never on user cancel.
+pub fn should_fall_back(e: &AppError) -> bool {
+    !matches!(e, AppError::Cancelled | AppError::InvalidInput(_))
+}
+
+pub fn fallback_available(cfg: &crate::config::AppConfig) -> bool {
+    let f = &cfg.ai.fallback;
+    f.enabled && !f.models.is_empty() && crate::secrets::get_secret("freellmapi_api_key").is_some()
+}
+
+/// Answers with FreeLLMAPI (free models), trying each configured model in order.
+/// The chat shows a visible notice; if every model fails, the original Claude error is returned.
+pub(crate) async fn run_fallback(p: &RunParams, original: AppError) -> AppResult<()> {
+    let reason = original.to_string();
+    let f = &p.cfg.ai.fallback;
+    for model in &f.models {
+        emit(p, json!({"type": "fallback", "reason": reason, "provider": "FreeLLMAPI", "model": model}));
+        let oc = crate::config::OpenAiCompatibleConfig {
+            base_url: f.base_url.clone(),
+            model: model.clone(),
+            max_tokens: f.max_tokens,
+            use_api_key: true,
+        };
+        let provider: Arc<dyn Provider> = Arc::new(super::openai_compat::OpenAiCompatProvider::with_key_slot(oc, "freellmapi_api_key"));
+        match run_inner(p, provider).await {
+            Ok(()) => return Ok(()),
+            Err(AppError::Cancelled) => return Err(AppError::Cancelled),
+            Err(e) => log::warn!("FreeLLMAPI fallback model {model} failed: {e}"),
+        }
+    }
+    Err(original)
 }
 
 async fn run_inner(p: &RunParams, provider: Arc<dyn Provider>) -> AppResult<()> {

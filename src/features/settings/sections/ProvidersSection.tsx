@@ -90,6 +90,23 @@ function SecretField({ name, label, hint }: { name: string; label: string; hint:
   );
 }
 
+function FallbackPanel({ draft, update }: SectionProps) {
+  const f = draft.ai.fallback;
+  return (
+    <Card title="Free fallback (FreeLLMAPI)">
+      <Notice kind="info">When Claude can't answer (usage limit, signed out, Claude Code missing), Windows AI answers with free models through your local FreeLLMAPI router instead. The chat always says when this happens. Your messages then go to whichever free providers FreeLLMAPI routes to.</Notice>
+      <Field label="Use fallback"><Toggle on={f.enabled} onChange={(v) => update((d) => { d.ai.fallback.enabled = v; })} /></Field>
+      <Field label="Router URL" hint="Desktop app: http://127.0.0.1:31415/v1 · Docker: http://localhost:3001/v1">
+        <input className="input" value={f.base_url} onChange={(e) => update((d) => { d.ai.fallback.base_url = e.target.value; })} />
+      </Field>
+      <Field label="Models (in order)" hint="fusion = several models answer, a judge merges them (smartest). auto = router's best single model.">
+        <input className="input" value={f.models.join(", ")} onChange={(e) => update((d) => { d.ai.fallback.models = e.target.value.split(",").map((x) => x.trim()).filter(Boolean); })} />
+      </Field>
+      <SecretField name="freellmapi_api_key" label="FreeLLMAPI key" hint="Unified freellmapi-… key from the FreeLLMAPI tray/Keys page." />
+    </Card>
+  );
+}
+
 function ClaudeCodePanel({ draft, update }: SectionProps) {
   const [st, setSt] = useState<ClaudeCodeStatus | null>(null);
   const [checking, setChecking] = useState(false);
@@ -224,6 +241,7 @@ export function ProvidersSection(props: SectionProps) {
       </Card>
 
       {draft.ai.provider === "claude_code" && <ClaudeCodePanel {...props} />}
+      {draft.ai.provider === "claude_code" && <FallbackPanel {...props} />}
 
       {draft.ai.provider === "anthropic" && (
         <Card title="Anthropic API">

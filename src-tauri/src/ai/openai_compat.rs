@@ -15,11 +15,18 @@ use tokio_util::sync::CancellationToken;
 pub struct OpenAiCompatProvider {
     cfg: OpenAiCompatibleConfig,
     client: reqwest::Client,
+    /// Credential Manager slot holding the bearer token.
+    key_slot: &'static str,
 }
 
 impl OpenAiCompatProvider {
     pub fn new(cfg: OpenAiCompatibleConfig) -> Self {
-        Self { cfg, client: http_client() }
+        Self { cfg, client: http_client(), key_slot: "openai_compatible_api_key" }
+    }
+
+    /// Same wire protocol, different stored key (e.g. the FreeLLMAPI fallback).
+    pub fn with_key_slot(cfg: OpenAiCompatibleConfig, key_slot: &'static str) -> Self {
+        Self { cfg, client: http_client(), key_slot }
     }
 
     fn url(&self, p: &str) -> String {
@@ -30,7 +37,7 @@ impl OpenAiCompatProvider {
         if !self.cfg.use_api_key {
             return Ok(rb);
         }
-        let key = crate::secrets::get_secret("openai_compatible_api_key")
+        let key = crate::secrets::get_secret(self.key_slot)
             .ok_or_else(|| AppError::MissingCredential("No API key stored for the OpenAI-compatible provider".into()))?;
         Ok(rb.bearer_auth(key))
     }

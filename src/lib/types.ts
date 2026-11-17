@@ -15,6 +15,7 @@ export interface AppConfig {
     claude_code: { cli_path: string; model: string; effort: string; enable_tools: boolean; timeout_secs: number; allow_api_billing: boolean };
     anthropic: { model: string; max_tokens: number; effort: string; base_url: string; refusal_fallbacks: boolean };
     openai_compatible: { base_url: string; model: string; max_tokens: number; use_api_key: boolean };
+    fallback: { enabled: boolean; base_url: string; models: string[]; max_tokens: number };
     custom_instructions: string;
     max_tool_iterations: number;
   };
@@ -119,6 +120,7 @@ export type ChatStreamPayload = { run_id: string; conversation_id: string } & (
   | { type: "tool_result"; tool_use_id: string; name: string; status: string; is_error: boolean; content: string }
   | { type: "context"; memories: string[] }
   | { type: "usage"; status: string; message: string; utilization?: number | null }
+  | { type: "fallback"; reason: string; provider: string; model: string }
   | { type: "done" }
   | { type: "cancelled" }
   | { type: "error"; error: AppError }

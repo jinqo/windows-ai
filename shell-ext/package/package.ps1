@@ -18,6 +18,7 @@
 .EXAMPLE
   .\package.ps1                                  # dev profile, dev cert
   .\package.ps1 -Profile release -PfxPath C:\secure\codesign.pfx
+  .\package.ps1 -AlsoSign windows-ai.exe,"Windows AI_0.1.0_x64-setup.exe"   # sign app + installer too
 #>
 param(
   [ValidateSet("dev", "release")] [string]$Profile,
@@ -26,7 +27,9 @@ param(
   [string]$Thumbprint,
   [string]$Version = "0.1.0.0",
   [string]$OutDir = (Join-Path $PSScriptRoot "out"),
-  [string]$TimestampUrl = "http://timestamp.digicert.com"
+  [string]$TimestampUrl = "http://timestamp.digicert.com",
+  # Extra files (app exe, installer) signed with the same certificate.
+  [string[]]$AlsoSign = @()
 )
 $ErrorActionPreference = "Stop"
 
@@ -84,12 +87,19 @@ $msix = Join-Path $OutDir "WindowsAI.msix"
 & $makeappx pack /d $stage /p $msix /nv /o
 if ($LASTEXITCODE) { throw "makeappx failed" }
 
-if ($PfxPath) {
-  $args = @("sign", "/fd", "SHA256", "/tr", $TimestampUrl, "/td", "SHA256", "/f", $PfxPath)
-  if ($pfxPlain) { $args += @("/p", $pfxPlain) }
-  & $signtool @args $msix
-} else {
-  & $signtool sign /fd SHA256 /tr $TimestampUrl /td SHA256 /sha1 $cert.Thumbprint /s My $msix
+function Sign-File($file) {
+  if ($PfxPath) {
+    $a = @("sign", "/fd", "SHA256", "/tr", $TimestampUrl, "/td", "SHA256", "/f", $PfxPath)
+    if ($pfxPlain) { $a += @("/p", $pfxPlain) }
+    & $signtool @a $file
+  } else {
+    & $signtool sign /fd SHA256 /tr $TimestampUrl /td SHA256 /sha1 $cert.Thumbprint /s My $file
+  }
+  if ($LASTEXITCODE) { throw "signtool failed for $file" }
 }
-if ($LASTEXITCODE) { throw "signtool failed" }
+Sign-File $msix
 Write-Host "Signed package: $msix" -ForegroundColor Green
+foreach ($f in $AlsoSign) {
+  Sign-File (Resolve-Path $f).Path
+  Write-Host "Signed: $f" -ForegroundColor Green
+}

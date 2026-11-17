@@ -54,6 +54,9 @@ export function applyStream(run: LiveRun, p: ChatStreamPayload): LiveRun {
       return { ...run, memories: p.memories };
     case "usage":
       return { ...run, usageNotice: p.message };
+    case "fallback":
+      // Claude Code could not answer: drop any partial output and say who answers instead.
+      return { ...run, text: "", thinking: "", tools: [], usageNotice: `Claude unavailable (${p.reason}). Answering with ${p.provider} · ${p.model}.` };
     case "done":
       return { ...run, done: true };
     case "cancelled":

@@ -1,6 +1,6 @@
-[package]
+﻿[package]
 name = "windows-ai"
-version = "0.1.0"
+version = "0.1.1"
 description = "Windows AI - native AI assistant overlay for Windows"
 authors = ["Windows AI contributors"]
 edition = "2021"

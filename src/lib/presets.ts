@@ -12,6 +12,15 @@ export interface ProviderPreset {
 
 export const PROVIDER_PRESETS: ProviderPreset[] = [
   {
+    id: "freellmapi",
+    label: "FreeLLMAPI (local router, free)",
+    base_url: "http://127.0.0.1:31415/v1",
+    model: "fusion",
+    use_api_key: true,
+    key_url: "https://github.com/tashfeenahmed/freellmapi",
+    note: "Routes across many free providers with failover. fusion = panel + judge (smartest); auto = best single model. Docker installs use port 3001.",
+  },
+  {
     id: "ollama",
     label: "Ollama (local, free)",
     base_url: "http://localhost:11434/v1",

@@ -21,6 +21,7 @@ React UI (src/)  ──invoke/events──▶  Tauri commands (src-tauri/src/com
 - **One gateway for actions**: every tool call (chat, tasks, Claude Code via MCP) goes through `tools::executor::ToolHub::execute` → schema validation → permission mode → approval dialog → run → activity log.
 - **Backends** (`config.ai.provider`):
   - `claude_code` (default): official Claude Code CLI as a child process (`ai/claude_code.rs`). Subscription auth stays inside the CLI. Built-in CLI tools disabled (`--tools ""`); Windows AI tools exposed via `windows-ai.exe --mcp-stdio` with a per-run token. Session continuity via `--session-id`/`--resume`, stored in `conversations.cli_session_id`.
+  - Fallback (`ai.fallback`): when Claude Code fails (not on cancel), `agent::run_fallback` answers via FreeLLMAPI (`fusion`, then `auto`) through `OpenAiCompatProvider::with_key_slot(.., "freellmapi_api_key")`. Only when enabled and a key exists; emits a visible `fallback` stream event.
   - `anthropic`: raw HTTP Messages API with streaming, adaptive thinking, tool loop in `ai/agent.rs`. API key in Windows Credential Manager.
   - `openai_compatible`: free/local servers (Ollama, LM Studio, Groq, Gemini, OpenRouter). Presets in `src/lib/presets.ts`; retries without `tools` when the model lacks function calling.
 - **Integrations** all produce a `CapturedContext` (source + kind + metadata) pushed to an in-memory `Inbox`; the UI shows exactly what will be shared before sending. `compose_prompt` wraps captures in `<captured_context>` blocks that the system prompt marks as data.

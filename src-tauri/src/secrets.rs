@@ -9,7 +9,7 @@ use crate::error::{AppError, AppResult};
 const SERVICE: &str = "WindowsAI";
 
 /// Known secret slots. Arbitrary names are rejected.
-pub const SECRET_NAMES: &[&str] = &["anthropic_api_key", "openai_compatible_api_key", "openai_whisper_api_key"];
+pub const SECRET_NAMES: &[&str] = &["anthropic_api_key", "openai_compatible_api_key", "openai_whisper_api_key", "freellmapi_api_key"];
 
 fn check_name(name: &str) -> AppResult<()> {
     if SECRET_NAMES.contains(&name) {
@@ -58,6 +58,7 @@ pub fn get_secret(name: &str) -> Option<String> {
         "anthropic_api_key" => "ANTHROPIC_API_KEY",
         "openai_whisper_api_key" => "OPENAI_API_KEY",
         "openai_compatible_api_key" => "OPENAI_COMPATIBLE_API_KEY",
+        "freellmapi_api_key" => "FREELLM_API_KEY",
         _ => return None,
     };
     std::env::var(env).ok().filter(|v| !v.is_empty())

@@ -54,7 +54,8 @@ jobs:
           $pfx = Join-Path $env:RUNNER_TEMP "codesign.pfx"
           [IO.File]::WriteAllBytes($pfx, [Convert]::FromBase64String("${{ secrets.MSIX_PFX_BASE64 }}"))
           $v = (Get-Content src-tauri/tauri.conf.json -Raw | ConvertFrom-Json).version + ".0"
-          ./shell-ext/package/package.ps1 -Profile release -PfxPath $pfx -Version $v
+          $setup = (Get-ChildItem src-tauri/target/release/bundle/nsis/*-setup.exe).FullName
+          ./shell-ext/package/package.ps1 -Profile release -PfxPath $pfx -Version $v -AlsoSign $setup
           Remove-Item $pfx -Force
 
       - name: Package VS Code extension

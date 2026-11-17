@@ -73,6 +73,8 @@ How it works: each request runs `claude -p --output-format stream-json` as a chi
 
 Usage counts against your Claude plan’s limits. When you approach or hit a limit, the chat shows when it resets.
 
+**Free fallback (FreeLLMAPI).** If Claude can't answer (usage limit, signed out, Claude Code missing), Windows AI can answer with free models through a local [FreeLLMAPI](https://github.com/tashfeenahmed/freellmapi) router. It uses `fusion` first (several free models answer in parallel and a judge merges them), then `auto`. The chat always shows *Claude unavailable … Answering with FreeLLMAPI · fusion*. It's on only when a FreeLLMAPI key is stored (Settings → AI providers → Free fallback) or `FREELLM_API_KEY` is set. Default router URL: `http://127.0.0.1:31415/v1` (desktop app); Docker installs use `http://localhost:3001/v1`.
+
 > **Important — subscription mode and Anthropic's terms.** Windows AI is an independent, unofficial project, not made or endorsed by Anthropic. Subscription mode runs the official Claude Code CLI on your own machine with your own login; Windows AI never handles your credentials. Anthropic's terms restrict third-party products from offering Claude.ai subscription access without approval, so **you** are responsible for making sure your use complies with the [Claude Code legal and compliance terms](https://code.claude.com/docs/en/legal-and-compliance) and Anthropic's Consumer/Commercial Terms. If in doubt, use **API mode** with your own API key.
 
 ### Free / local models (no Claude account)
@@ -80,6 +82,7 @@ Settings → AI providers → **Free / local** → pick a preset:
 
 | Preset | Cost | Key |
 |---|---|---|
+| FreeLLMAPI | Free, local router over many free tiers | unified `freellmapi-…` key from the app |
 | Ollama | Free, runs on your PC | none ([download](https://ollama.com/download), then `ollama pull llama3.2`) |
 | LM Studio | Free, runs on your PC | none |
 | Groq | Free tier, rate limited | [console.groq.com/keys](https://console.groq.com/keys) |
@@ -144,9 +147,15 @@ cargo test --manifest-path src-tauri/Cargo.toml --lib live_ -- --ignored --test-
 `shell-ext/` contains an `IExplorerCommand` handler DLL (`windows_ai_shell.dll`, shipped next to `windows-ai.exe`) and a sparse MSIX manifest that gives it package identity. Windows only accepts **signed** packages:
 
 1. Install the Windows SDK (for `makeappx` / `signtool`).
-2. Build and sign with a code-signing certificate whose subject becomes the package Publisher:
+2. Build and sign with a code-signing certificate whose subject becomes the package Publisher (`signing.json`):
    `shell-ext/package/package.ps1 -PfxPath codesign.pfx -PfxPassword (Read-Host -AsSecureString)`
 3. Register for the current user: `shell-ext/package/register.ps1`
+
+### Signing status
+
+Release builds are **not code-signed yet**, so Windows SmartScreen warns on first run (*More info → Run anyway*). The pipeline is ready: add a trusted code-signing certificate as repo secrets `MSIX_PFX_BASE64` + `MSIX_PFX_PASSWORD`, put its exact Subject in `shell-ext/package/signing.json` → `profiles.release.publisher`, and the release workflow signs the installer and builds the signed MSIX automatically. Free/cheap options for open-source projects: [SignPath Foundation](https://signpath.org) (free for OSS), Certum Open Source Code Signing, or Azure Artifact Signing.
+
+For your own PC only, a self-signed dev certificate works: `new-dev-cert.ps1`, then `trust-dev-cert.ps1` in an **elevated** PowerShell, then `package.ps1` and `register.ps1`.
 
 ## Known limitations
 

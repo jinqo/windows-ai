@@ -867,6 +867,35 @@ mod tests {
         assert!(second.ends_with("prompt=and in simpler words?"), "resume sends only the new message: {second}");
     }
 
+    #[test]
+    fn fallback_policy() {
+        assert!(crate::ai::agent::should_fall_back(&AppError::Provider("Claude usage limit reached".into())));
+        assert!(crate::ai::agent::should_fall_back(&AppError::MissingCredential("sign in".into())));
+        assert!(crate::ai::agent::should_fall_back(&AppError::NotFound("Claude Code is not installed".into())));
+        assert!(!crate::ai::agent::should_fall_back(&AppError::Cancelled));
+        let mut cfg = AppConfig::default();
+        cfg.ai.fallback.enabled = false;
+        assert!(!crate::ai::agent::fallback_available(&cfg), "disabled fallback is never used");
+        assert_eq!(AppConfig::default().ai.fallback.models[0], "fusion");
+    }
+
+    /// Needs the FreeLLMAPI desktop app running and FREELLM_API_KEY set.
+    #[tokio::test]
+    #[ignore]
+    async fn live_freellmapi_fallback() {
+        let db = Db::open_in_memory().unwrap();
+        let conv = memory::create_conversation(&db, "t", None).unwrap().id;
+        user(&db, &conv, "Reply with exactly the word: heliotrope");
+        let rec = Arc::new(Rec::default());
+        let p = params(&db, &conv, rec.clone(), CancellationToken::new(), "");
+        assert!(crate::ai::agent::fallback_available(&p.cfg), "set FREELLM_API_KEY");
+        crate::ai::agent::run_fallback(&p, AppError::Provider("Claude usage limit reached".into())).await.unwrap();
+        let text = last_text(&db, &conv);
+        assert!(text.to_lowercase().contains("heliotrope"), "{text}");
+        let events = rec.0.lock().unwrap();
+        assert!(events.iter().any(|v| v["type"] == "fallback" && v["model"] == "fusion"), "visible fallback notice");
+    }
+
     #[tokio::test]
     async fn fake_cli_error_cases() {
         let Some(cli) = fake_cli() else { return };

@@ -128,6 +128,8 @@ pub struct AiConfig {
     pub claude_code: ClaudeCodeConfig,
     pub anthropic: AnthropicConfig,
     pub openai_compatible: OpenAiCompatibleConfig,
+    /// Free fallback used when Claude Code cannot answer (limit, signed out, missing).
+    pub fallback: FallbackConfig,
     /// Extra instructions appended to the built-in system prompt.
     pub custom_instructions: String,
     /// Max agent iterations (model turns) per user message.
@@ -141,6 +143,7 @@ impl Default for AiConfig {
             claude_code: ClaudeCodeConfig::default(),
             anthropic: AnthropicConfig::default(),
             openai_compatible: OpenAiCompatibleConfig::default(),
+            fallback: FallbackConfig::default(),
             custom_instructions: String::new(),
             max_tool_iterations: 12,
         }
@@ -216,6 +219,30 @@ impl Default for OpenAiCompatibleConfig {
             model: "llama3.1".into(),
             max_tokens: 4096,
             use_api_key: false,
+        }
+    }
+}
+
+/// FreeLLMAPI (local router over free LLM tiers) as a fallback for subscription mode.
+/// Only used when enabled AND a FreeLLMAPI key is stored (or FREELLM_API_KEY is set).
+#[derive(Debug, Clone, Serialize, Deserialize, PartialEq)]
+#[serde(default)]
+pub struct FallbackConfig {
+    pub enabled: bool,
+    /// FreeLLMAPI desktop app default; Docker installs use http://localhost:3001/v1
+    pub base_url: String,
+    /// Tried in order. "fusion" = panel of models + judge (smartest); "auto" = router's best single model.
+    pub models: Vec<String>,
+    pub max_tokens: u32,
+}
+
+impl Default for FallbackConfig {
+    fn default() -> Self {
+        Self {
+            enabled: true,
+            base_url: "http://127.0.0.1:31415/v1".into(),
+            models: vec!["fusion".into(), "auto".into()],
+            max_tokens: 8192,
         }
     }
 }

@@ -83,7 +83,7 @@ describe("provider presets", () => {
   it("have unique ids and https or localhost URLs", () => {
     const ids = new Set(PROVIDER_PRESETS.map((p) => p.id));
     expect(ids.size).toBe(PROVIDER_PRESETS.length);
-    for (const p of PROVIDER_PRESETS) expect(p.base_url).toMatch(/^(https:\/\/|http:\/\/localhost:)/);
+    for (const p of PROVIDER_PRESETS) expect(p.base_url).toMatch(/^(https:\/\/|http:\/\/(localhost|127\.0\.0\.1):)/);
   });
   it("matches a preset by URL ignoring trailing slash and case", () => {
     expect(presetForUrl("https://API.groq.com/openai/v1/")?.id).toBe("groq");
@@ -91,5 +91,16 @@ describe("provider presets", () => {
   });
   it("sorts free models first", () => {
     expect(sortModels([{ id: "b" }, { id: "z:free" }, { id: "a" }]).map((m) => m.id)).toEqual(["z:free", "a", "b"]);
+  });
+});
+
+describe("fallback stream event", () => {
+  it("clears partial Claude output and shows a notice", () => {
+    let r = newRun("r1", "c1");
+    r = applyStream(r, { run_id: "r1", conversation_id: "c1", type: "delta", event: { type: "text_delta", text: "partial" } } as never);
+    r = applyStream(r, { run_id: "r1", conversation_id: "c1", type: "fallback", reason: "usage limit", provider: "FreeLLMAPI", model: "fusion" } as never);
+    expect(r.text).toBe("");
+    expect(r.usageNotice).toContain("FreeLLMAPI · fusion");
+    expect(r.usageNotice).toContain("usage limit");
   });
 });

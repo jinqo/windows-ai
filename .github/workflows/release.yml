@@ -33,6 +33,7 @@ jobs:
       - name: Test
         shell: bash
         run: |
+          npm run build:shell
           npm run typecheck
           npm test
           cargo test --manifest-path src-tauri/Cargo.toml --lib

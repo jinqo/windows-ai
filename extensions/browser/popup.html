@@ -1,0 +1,27 @@
+<!doctype html>
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <style>
+      body { width: 300px; margin: 0; padding: 14px; font: 13px/1.5 "Segoe UI", system-ui, sans-serif; background: #17151d; color: #ece9f4; }
+      h1 { font-size: 14px; margin: 0 0 8px; display: flex; align-items: center; gap: 8px; }
+      .dot { width: 8px; height: 8px; border-radius: 50%; background: #7d7790; }
+      .dot.ok { background: #34d399; } .dot.err { background: #f87171; }
+      button { width: 100%; height: 32px; margin-top: 8px; border-radius: 9px; border: 1px solid rgba(255,255,255,.12); background: #2d2a38; color: inherit; cursor: pointer; font: inherit; }
+      button.primary { background: #8b5cf6; border-color: transparent; color: white; }
+      button:hover { filter: brightness(1.1); }
+      textarea { width: 100%; box-sizing: border-box; margin-top: 8px; border-radius: 9px; border: 1px solid rgba(255,255,255,.12); background: rgba(0,0,0,.25); color: inherit; padding: 8px; font: inherit; resize: vertical; }
+      #status { color: #b4afc4; font-size: 12px; min-height: 18px; margin-top: 8px; }
+      .muted { color: #7d7790; font-size: 11.5px; }
+    </style>
+  </head>
+  <body>
+    <h1><span id="dot" class="dot"></span> Windows AI</h1>
+    <div class="muted">Sends this page to the Windows AI desktop app only when you click.</div>
+    <button id="summarize" class="primary">Summarize this page</button>
+    <textarea id="question" rows="3" placeholder="Ask a question about this page…"></textarea>
+    <button id="ask">Ask</button>
+    <div id="status"></div>
+    <script type="module" src="popup.js"></script>
+  </body>
+</html>

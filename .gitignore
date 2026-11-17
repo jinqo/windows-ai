@@ -1,0 +1,19 @@
+node_modules/
+dist/
+src-tauri/target/
+src-tauri/gen/
+extensions/vscode/*.vsix
+*.log
+.DS_Store
+shell-ext/bin/
+shell-ext/target/
+shell-ext/package/out/
+
+# signing material - never commit
+*.pfx
+*.p12
+*.cer
+*.key
+*.pvk
+*.snk
+*.msix

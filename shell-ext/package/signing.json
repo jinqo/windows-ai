@@ -1,0 +1,16 @@
+{
+  "$comment": "Public signing configuration. NO secrets here. 'publisher' must equal the signing certificate's Subject exactly; package.ps1 refuses to sign if they differ. Switch profile to 'release' once a trusted code-signing certificate is available and set its exact Subject.",
+  "packageName": "WindowsAI",
+  "displayName": "Windows AI",
+  "profile": "dev",
+  "profiles": {
+    "dev": {
+      "publisher": "CN=Windows AI Dev, C=NL",
+      "description": "Self-signed development certificate created by new-dev-cert.ps1. Only trusted on machines where trust-dev-cert.ps1 was run."
+    },
+    "release": {
+      "publisher": "CN=TO BE FINALIZED, C=NL",
+      "description": "Trusted code-signing certificate (CA-issued or Azure Trusted Signing). Replace with the certificate's exact Subject."
+    }
+  }
+}

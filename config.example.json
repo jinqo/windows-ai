@@ -1,0 +1,64 @@
+{
+  "appearance": { "accent": "violet", "opacity": 0.92, "font_size": 14, "compact": false, "reduce_motion": false },
+  "window": { "width": 860, "height": 640, "position": "center", "always_on_top": true, "hide_on_blur": false },
+  "ai": {
+    "provider": "claude_code",
+    "claude_code": { "cli_path": "", "model": "", "effort": "", "enable_tools": true, "timeout_secs": 900, "allow_api_billing": false },
+    "anthropic": { "model": "claude-opus-5-5", "max_tokens": 32000, "effort": "medium", "base_url": "https://api.anthropic.com", "refusal_fallbacks": true },
+    "openai_compatible": { "base_url": "http://localhost:11434/v1", "model": "llama3.1", "max_tokens": 4096, "use_api_key": false },
+    "custom_instructions": "",
+    "max_tool_iterations": 12
+  },
+  "memory": { "auto_context": true, "max_context_items": 8, "allow_ai_save": true, "history_window": 40 },
+  "voice": {
+    "stt_provider": "windows",
+    "stt_language": "en-US",
+    "whisper_base_url": "https://api.openai.com/v1",
+    "tts_enabled": false,
+    "tts_voice": "",
+    "tts_rate": 1.0,
+    "tts_pitch": 1.0,
+    "tts_volume": 1.0,
+    "auto_send_transcript": false
+  },
+  "shortcuts": { "toggle_overlay": "Alt+Space" },
+  "startup": { "launch_on_login": false, "start_hidden": false },
+  "permissions": {
+    "tool_modes": { "open_url": "ask", "system_info": "allow" },
+    "directories": [
+      { "path": "C:\\Users\\YOU\\Documents", "read": true, "write": false },
+      { "path": "C:\\Users\\YOU\\Documents\\WindowsAI", "read": true, "write": true }
+    ],
+    "apps": [
+      { "name": "notepad", "path": "notepad.exe", "args": [] },
+      { "name": "calculator", "path": "calc.exe", "args": [] }
+    ],
+    "commands": [
+      { "name": "git-status", "description": "Show git status of my main repo", "program": "git", "args": ["status", "--short"], "cwd": "C:\\Users\\YOU\\code\\project", "timeout_secs": 30 }
+    ],
+    "max_read_bytes": 524288,
+    "approval_timeout_secs": 300
+  },
+  "mcp": {
+    "servers": [
+      {
+        "id": "filesystem",
+        "name": "Filesystem (example)",
+        "command": "npx",
+        "args": ["-y", "@modelcontextprotocol/server-filesystem", "C:\\Users\\YOU\\Documents"],
+        "env": {},
+        "enabled": false,
+        "trusted_tools": []
+      }
+    ]
+  },
+  "integrations": {
+    "selection_enabled": true,
+    "selection_shortcut": "Ctrl+Shift+Space",
+    "selection_mode": "toolbar",
+    "clipboard_fallback": true,
+    "bridge_enabled": true,
+    "max_context_chars": 100000,
+    "translate_language": "English"
+  }
+}

@@ -1,0 +1,48 @@
+{
+  "name": "windows-ai-vscode",
+  "displayName": "Windows AI",
+  "description": "Send selected code, files and diagnostics to the Windows AI desktop assistant.",
+  "version": "0.1.0",
+  "publisher": "windows-ai",
+  "license": "MIT",
+  "engines": { "vscode": "^1.85.0" },
+  "categories": ["Other"],
+  "main": "./extension.js",
+  "activationEvents": [],
+  "repository": { "type": "git", "url": "https://example.invalid/windows-ai" },
+  "contributes": {
+    "commands": [
+      { "command": "windowsAi.ask", "title": "Ask Windows AI about selection", "category": "Windows AI" },
+      { "command": "windowsAi.explain", "title": "Explain", "category": "Windows AI" },
+      { "command": "windowsAi.debug", "title": "Debug", "category": "Windows AI" },
+      { "command": "windowsAi.refactor", "title": "Refactor", "category": "Windows AI" },
+      { "command": "windowsAi.document", "title": "Document", "category": "Windows AI" },
+      { "command": "windowsAi.sendDiagnostics", "title": "Send errors in this file", "category": "Windows AI" },
+      { "command": "windowsAi.sendFile", "title": "Send whole file", "category": "Windows AI" }
+    ],
+    "submenus": [{ "id": "windowsAi.menu", "label": "Windows AI" }],
+    "menus": {
+      "editor/context": [{ "submenu": "windowsAi.menu", "group": "navigation@99" }],
+      "windowsAi.menu": [
+        { "command": "windowsAi.ask", "group": "1@1" },
+        { "command": "windowsAi.explain", "group": "2@1" },
+        { "command": "windowsAi.debug", "group": "2@2" },
+        { "command": "windowsAi.refactor", "group": "2@3" },
+        { "command": "windowsAi.document", "group": "2@4" },
+        { "command": "windowsAi.sendDiagnostics", "group": "3@1" },
+        { "command": "windowsAi.sendFile", "group": "3@2" }
+      ]
+    },
+    "keybindings": [{ "command": "windowsAi.ask", "key": "ctrl+alt+a", "when": "editorTextFocus" }],
+    "configuration": {
+      "title": "Windows AI",
+      "properties": {
+        "windowsAi.maxChars": { "type": "number", "default": 100000, "description": "Maximum characters sent per request." },
+        "windowsAi.includeFilePath": { "type": "boolean", "default": true, "description": "Include the file path with captured code." }
+      }
+    }
+  },
+  "scripts": {
+    "package": "npx --yes @vscode/vsce@3 package --no-dependencies --allow-missing-repository"
+  }
+}

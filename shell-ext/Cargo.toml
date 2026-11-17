@@ -1,0 +1,26 @@
+[package]
+name = "windows-ai-shell"
+version = "0.1.0"
+edition = "2021"
+description = "Windows 11 File Explorer context-menu handler (IExplorerCommand) for Windows AI"
+
+[lib]
+name = "windows_ai_shell"
+crate-type = ["cdylib", "rlib"]
+
+[dependencies]
+windows-core = "0.61"
+windows = { version = "0.61", features = [
+  "Win32_Foundation",
+  "Win32_System_Com",
+  "Win32_System_LibraryLoader",
+  "Win32_System_Ole",
+  "Win32_UI_Shell",
+  "Win32_UI_Shell_Common",
+  "Win32_UI_WindowsAndMessaging",
+] }
+
+[profile.release]
+opt-level = "s"
+lto = true
+strip = true

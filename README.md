@@ -1,5 +1,18 @@
 # Windows AI
 
+[![Release](https://img.shields.io/github/v/release/jinqo/windows-ai)](https://github.com/jinqo/windows-ai/releases/latest)
+[![Downloads](https://img.shields.io/github/downloads/jinqo/windows-ai/total)](https://github.com/jinqo/windows-ai/releases)
+[![License: MIT](https://img.shields.io/badge/license-MIT-violet.svg)](LICENSE)
+![Windows 11](https://img.shields.io/badge/Windows-10%20%7C%2011-0078D4?logo=windows)
+
+**An AI assistant that lives in Windows.** Alt+Space from anywhere, explain any selected text, right-click files in Explorer, and run on free models when you don't have (or run out of) a paid plan.
+
+```powershell
+irm https://raw.githubusercontent.com/jinqo/windows-ai/main/install.ps1 | iex
+```
+
+![Windows AI overlay](docs/screenshot.png)
+
 A native-feeling AI assistant for Windows 11. Press **Alt+Space** anywhere to open a floating overlay, chat with Claude, and let it work with your PC through permission-checked tools. Select text in any app and press **Ctrl+Shift+Space** to explain, rewrite, summarize or translate it. Right-click files in Explorer, pages in Chrome/Edge, or code in VS Code to send them to the same assistant.
 
 ## Features

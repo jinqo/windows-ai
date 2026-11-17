@@ -4,7 +4,58 @@ import type { SectionProps } from "../SettingsView";
 import { Card, Field, Notice, Segmented, Toggle } from "../../../components/ui";
 import { api, errorMessage } from "../../../lib/api";
 import { useApp } from "../../../store/app";
-import type { ClaudeCodeStatus } from "../../../lib/types";
+import type { ClaudeCodeStatus, ModelInfo } from "../../../lib/types";
+import { PROVIDER_PRESETS, presetForUrl, sortModels } from "../../../lib/presets";
+
+function FreeProviderPanel({ draft, update }: SectionProps) {
+  const oc = draft.ai.openai_compatible;
+  const saved = useApp((s) => s.config?.ai.openai_compatible);
+  const toast = useApp((s) => s.toast);
+  const [models, setModels] = useState<ModelInfo[]>([]);
+  const [loading, setLoading] = useState(false);
+  const preset = presetForUrl(oc.base_url);
+  const unsaved = JSON.stringify(saved) !== JSON.stringify(oc) || useApp.getState().config?.ai.provider !== "openai_compatible";
+  return (
+    <Card title="Free & local models (OpenAI-compatible)">
+      <Notice kind="info">Use a free cloud API (Groq, Gemini, OpenRouter) or a model on your own PC (Ollama, LM Studio). Pick a preset, add a free key if needed, then Save.</Notice>
+      <Field label="Preset">
+        <select className="select" value={preset?.id ?? ""} onChange={(e) => {
+          const p = PROVIDER_PRESETS.find((x) => x.id === e.target.value);
+          if (p) update((d) => { d.ai.openai_compatible = { ...d.ai.openai_compatible, base_url: p.base_url, model: p.model, use_api_key: p.use_api_key }; });
+          setModels([]);
+        }}>
+          <option value="">Custom</option>
+          {PROVIDER_PRESETS.map((p) => <option key={p.id} value={p.id}>{p.label}</option>)}
+        </select>
+      </Field>
+      {preset && (
+        <Field label="" hint={preset.note}>
+          <a className="btn ghost" href="#" onClick={(e) => { e.preventDefault(); import("@tauri-apps/plugin-opener").then((m) => m.openUrl(preset.key_url)); }}><ExternalLink size={14} /> {preset.use_api_key ? "Get a free key" : "Download"}</a>
+        </Field>
+      )}
+      <Field label="Base URL"><input className="input" value={oc.base_url} onChange={(e) => update((d) => { d.ai.openai_compatible.base_url = e.target.value; })} /></Field>
+      <Field label="Model" hint={unsaved ? "Save first to load the model list." : undefined}>
+        <input className="input" list="oc-models" value={oc.model} onChange={(e) => update((d) => { d.ai.openai_compatible.model = e.target.value; })} />
+        <datalist id="oc-models">{models.map((m) => <option key={m.id} value={m.id}>{m.label}</option>)}</datalist>
+        <button className="btn" disabled={loading || unsaved} onClick={async () => {
+          setLoading(true);
+          try {
+            const list = sortModels(await api.listModels());
+            setModels(list);
+            toast("success", `${list.length} models found`);
+          } catch (e) {
+            toast("error", errorMessage(e));
+          } finally {
+            setLoading(false);
+          }
+        }}><RefreshCw size={14} /> Load models</button>
+      </Field>
+      <Field label="Send API key"><Toggle on={oc.use_api_key} onChange={(v) => update((d) => { d.ai.openai_compatible.use_api_key = v; })} /></Field>
+      {oc.use_api_key && <SecretField name="openai_compatible_api_key" label="API key" hint="Bearer token for the server." />}
+      <Notice kind="info">Free tiers have rate limits, and your messages go to that provider under its own terms. Models without tool support still chat; Windows tools are then skipped.</Notice>
+    </Card>
+  );
+}
 
 function SecretField({ name, label, hint }: { name: string; label: string; hint: string }) {
   const [status, setStatus] = useState<{ stored: boolean; from_env: boolean } | null>(null);
@@ -161,13 +212,13 @@ export function ProvidersSection(props: SectionProps) {
             options={[
               { value: "claude_code", label: "Claude subscription" },
               { value: "anthropic", label: "API key" },
-              { value: "openai_compatible", label: "Other" },
+              { value: "openai_compatible", label: "Free / local" },
             ]}
           />
         </Field>
         <Field label="Billing" hint="Windows AI never switches billing mode on its own.">
           <span className={`badge ${draft.ai.provider === "claude_code" ? "ok" : draft.ai.provider === "anthropic" ? "warn" : ""}`}>
-            {draft.ai.provider === "claude_code" ? "Claude subscription (usage limits)" : draft.ai.provider === "anthropic" ? "Anthropic API (pay per use)" : "Depends on your server"}
+            {draft.ai.provider === "claude_code" ? "Claude subscription (usage limits)" : draft.ai.provider === "anthropic" ? "Anthropic API (pay per use)" : "Free tier or local (set by that provider)"}
           </span>
         </Field>
       </Card>
@@ -194,15 +245,7 @@ export function ProvidersSection(props: SectionProps) {
         </Card>
       )}
 
-      {draft.ai.provider === "openai_compatible" && (
-        <Card title="OpenAI-compatible server">
-          <Notice kind="info">For local models (e.g. Ollama at http://localhost:11434/v1) or other compatible endpoints.</Notice>
-          <Field label="Base URL"><input className="input" value={draft.ai.openai_compatible.base_url} onChange={(e) => update((d) => { d.ai.openai_compatible.base_url = e.target.value; })} /></Field>
-          <Field label="Model"><input className="input" value={draft.ai.openai_compatible.model} onChange={(e) => update((d) => { d.ai.openai_compatible.model = e.target.value; })} /></Field>
-          <Field label="Send API key"><Toggle on={draft.ai.openai_compatible.use_api_key} onChange={(v) => update((d) => { d.ai.openai_compatible.use_api_key = v; })} /></Field>
-          {draft.ai.openai_compatible.use_api_key && <SecretField name="openai_compatible_api_key" label="API key" hint="Bearer token for the server." />}
-        </Card>
-      )}
+      {draft.ai.provider === "openai_compatible" && <FreeProviderPanel {...props} />}
 
       <Card title="Behaviour">
         <Field label="Custom instructions" hint="Added to every conversation." stack>

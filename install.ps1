@@ -1,5 +1,5 @@
 # Windows AI one-line installer.
-#   irm https://raw.githubusercontent.com/__REPO__/main/install.ps1 | iex
+#   irm https://raw.githubusercontent.com/jinqo/windows-ai/main/install.ps1 | iex
 #
 # Downloads the latest release installer from GitHub Releases, verifies its
 # SHA-256 checksum against the published SHA256SUMS.txt, and installs
@@ -7,7 +7,7 @@
 
 $ErrorActionPreference = 'Stop'
 $ProgressPreference = 'SilentlyContinue'
-$Repo = '__REPO__'
+$Repo = 'jinqo/windows-ai'
 $Headers = @{ 'User-Agent' = 'windows-ai-installer'; 'Accept' = 'application/vnd.github+json' }
 
 Write-Host "Windows AI installer" -ForegroundColor Magenta

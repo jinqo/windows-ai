@@ -6,7 +6,8 @@ A native-feeling AI assistant for Windows 11. Press **Alt+Space** anywhere to op
 
 - **Floating overlay**: always-on-top, frameless, dark charcoal + violet glass design; tray icon; close hides to tray; Esc hides; launch on sign-in.
 - **Claude via your subscription**: uses the official **Claude Code CLI** you’re signed in to. No API key needed, no API billing. Streaming, conversation continuity, cancellation, usage-limit notices.
-- **Optional API mode**: Anthropic API key (billed per use) or any OpenAI-compatible server (e.g. Ollama).
+- **Free models**: one-click presets for free API tiers (Groq, Google Gemini, OpenRouter `:free` models) and local models (Ollama, LM Studio). No Claude account needed.
+- **Optional API mode**: Anthropic API key (billed per use).
 - **Local memory**: conversations, memories (preferences, facts, notes), projects — all in a local SQLite database with full-text search, editing and deletion.
 - **Windows tools**: search/list/read files in approved folders, create files, launch approved apps, open URLs, system info, run allow-listed commands, manage settings, plan multi-step tasks.
 - **Permission system**: per-tool Allow / Ask / Deny, folder read/write scopes, approval dialogs that describe the exact action, execution history.
@@ -26,7 +27,7 @@ A native-feeling AI assistant for Windows 11. Press **Alt+Space** anywhere to op
 ### One command (PowerShell)
 
 ```powershell
-irm https://raw.githubusercontent.com/__REPO__/main/install.ps1 | iex
+irm https://raw.githubusercontent.com/jinqo/windows-ai/main/install.ps1 | iex
 ```
 
 Downloads the latest release installer, verifies its SHA-256 checksum, installs per-user (no admin) and starts Windows AI.
@@ -73,6 +74,19 @@ How it works: each request runs `claude -p --output-format stream-json` as a chi
 Usage counts against your Claude plan’s limits. When you approach or hit a limit, the chat shows when it resets.
 
 > **Important — subscription mode and Anthropic's terms.** Windows AI is an independent, unofficial project, not made or endorsed by Anthropic. Subscription mode runs the official Claude Code CLI on your own machine with your own login; Windows AI never handles your credentials. Anthropic's terms restrict third-party products from offering Claude.ai subscription access without approval, so **you** are responsible for making sure your use complies with the [Claude Code legal and compliance terms](https://code.claude.com/docs/en/legal-and-compliance) and Anthropic's Consumer/Commercial Terms. If in doubt, use **API mode** with your own API key.
+
+### Free / local models (no Claude account)
+Settings → AI providers → **Free / local** → pick a preset:
+
+| Preset | Cost | Key |
+|---|---|---|
+| Ollama | Free, runs on your PC | none ([download](https://ollama.com/download), then `ollama pull llama3.2`) |
+| LM Studio | Free, runs on your PC | none |
+| Groq | Free tier, rate limited | [console.groq.com/keys](https://console.groq.com/keys) |
+| Google Gemini | Free tier, daily limits | [aistudio.google.com/apikey](https://aistudio.google.com/apikey) |
+| OpenRouter | Models ending in `:free` | [openrouter.ai/keys](https://openrouter.ai/keys) |
+
+Paste the key (stored in Windows Credential Manager), **Save**, then **Load models** to pick from the provider's live list. Models without function calling still chat; Windows tools are skipped for them. Free tiers are rate limited and your messages are processed under that provider's terms.
 
 ### API mode (optional)
 Settings → AI providers → **API key**. Paste a key from console.anthropic.com (stored in Windows Credential Manager). Billed per token to that Console account.

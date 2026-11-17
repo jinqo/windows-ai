@@ -22,7 +22,7 @@ React UI (src/)  ──invoke/events──▶  Tauri commands (src-tauri/src/com
 - **Backends** (`config.ai.provider`):
   - `claude_code` (default): official Claude Code CLI as a child process (`ai/claude_code.rs`). Subscription auth stays inside the CLI. Built-in CLI tools disabled (`--tools ""`); Windows AI tools exposed via `windows-ai.exe --mcp-stdio` with a per-run token. Session continuity via `--session-id`/`--resume`, stored in `conversations.cli_session_id`.
   - `anthropic`: raw HTTP Messages API with streaming, adaptive thinking, tool loop in `ai/agent.rs`. API key in Windows Credential Manager.
-  - `openai_compatible`: local/other servers (Ollama etc.).
+  - `openai_compatible`: free/local servers (Ollama, LM Studio, Groq, Gemini, OpenRouter). Presets in `src/lib/presets.ts`; retries without `tools` when the model lacks function calling.
 - **Integrations** all produce a `CapturedContext` (source + kind + metadata) pushed to an in-memory `Inbox`; the UI shows exactly what will be shared before sending. `compose_prompt` wraps captures in `<captured_context>` blocks that the system prompt marks as data.
 - **Bridge**: per-user named pipe `\\.\pipe\windows-ai-bridge-<USERNAME>`, remote clients rejected, every request needs the random token in `%LOCALAPPDATA%\WindowsAI\bridge.token` (rotated each launch). `capture` requests can only deliver context; `run_*` requests need a live per-run token.
 - **Process modes** (`main.rs`): normal app; `chrome-extension://…` arg → native-messaging host; `--mcp-stdio` → MCP helper for Claude Code. Explorer verbs use `--context-action <action> --file "%1"` (forwarded via single-instance, batched 700 ms).
@@ -90,7 +90,7 @@ Toolchain: Rust `x86_64-pc-windows-gnu` with MinGW (windres used by build.rs to 
 | Overlay, tray, Alt+Space, Esc, close-to-tray, autostart, positioning | Done |
 | Chat streaming, Markdown, code copy, history, search, pin/rename/delete | Done |
 | Claude subscription via Claude Code CLI (status, sign-in, stream, resume, cancel, limits) | Done, live-tested |
-| Anthropic API provider / OpenAI-compatible provider | Done (API path unit-tested; no key available for live test) |
+| Anthropic API provider / OpenAI-compatible provider + free presets | Done (unit-tested; no keys available for live test) |
 | Memory (SQLite + FTS5), projects, sensitive-data guard | Done |
 | Tools + permissions + approvals + activity log | Done |
 | MCP client (stdio), trust gate | Done (tested with fake server) |

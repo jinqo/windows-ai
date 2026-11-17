@@ -34,6 +34,33 @@ impl OpenAiCompatProvider {
             .ok_or_else(|| AppError::MissingCredential("No API key stored for the OpenAI-compatible provider".into()))?;
         Ok(rb.bearer_auth(key))
     }
+
+    async fn send(&self, body: &Value, cancel: &CancellationToken) -> AppResult<reqwest::Response> {
+        let rb = self.auth(self.client.post(self.url("/chat/completions")).json(body))?;
+        tokio::select! {
+            r = rb.send() => r.map_err(|e| AppError::Provider(format!("cannot reach {}: {e}", self.cfg.base_url))),
+            _ = cancel.cancelled() => Err(AppError::Cancelled),
+        }
+    }
+}
+
+/// True when a server rejected the request because the model cannot use tools.
+pub fn tools_unsupported(status: u16, body: &str) -> bool {
+    let b = body.to_ascii_lowercase();
+    matches!(status, 400 | 404 | 422 | 501)
+        && (b.contains("tool") || b.contains("function"))
+        && (b.contains("support") || b.contains("not available") || b.contains("no endpoints"))
+}
+
+/// Human-readable error for common free-tier / local-server failures.
+pub fn http_error_message(status: u16, body: &str) -> String {
+    let snippet: String = body.chars().take(300).collect();
+    match status {
+        401 | 403 => format!("The server rejected the API key (HTTP {status}). Check the key in Settings → AI providers. {snippet}"),
+        429 => format!("Rate limit or free-tier quota reached (HTTP 429). Wait a bit or pick another model/provider. {snippet}"),
+        404 => format!("Model or endpoint not found (HTTP 404). Check the base URL and model name. {snippet}"),
+        _ => format!("HTTP {status}: {snippet}"),
+    }
 }
 
 /// Converts canonical messages to chat-completions messages.
@@ -171,15 +198,22 @@ impl Provider for OpenAiCompatProvider {
                     .collect(),
             );
         }
-        let rb = self.auth(self.client.post(self.url("/chat/completions")).json(&body))?;
-        let resp = tokio::select! {
-            r = rb.send() => r.map_err(|e| AppError::Provider(format!("cannot reach {}: {e}", self.cfg.base_url)))?,
-            _ = cancel.cancelled() => return Err(AppError::Cancelled),
-        };
+        let mut resp = self.send(&body, cancel).await?;
         if !resp.status().is_success() {
             let s = resp.status().as_u16();
             let t = resp.text().await.unwrap_or_default();
-            return Err(AppError::Provider(format!("HTTP {s}: {}", t.chars().take(300).collect::<String>())));
+            if body.get("tools").is_some() && tools_unsupported(s, &t) {
+                // Many free/local models have no function calling: answer without tools.
+                body.as_object_mut().map(|o| o.remove("tools"));
+                resp = self.send(&body, cancel).await?;
+                if !resp.status().is_success() {
+                    let s = resp.status().as_u16();
+                    let t = resp.text().await.unwrap_or_default();
+                    return Err(AppError::Provider(http_error_message(s, &t)));
+                }
+            } else {
+                return Err(AppError::Provider(http_error_message(s, &t)));
+            }
         }
         let mut stream = resp.bytes_stream();
         let mut parser = SseParser::new();
@@ -262,5 +296,20 @@ mod tests {
         let r = acc.finish();
         assert_eq!(r.stop_reason, StopReason::ToolUse);
         assert_eq!(r.content[0], ContentBlock::ToolUse { id: "c1".into(), name: "read_file".into(), input: json!({"path": "x"}) });
+    }
+
+    #[test]
+    fn detects_models_without_tool_support() {
+        assert!(tools_unsupported(400, r#"{"error":"registry.ollama.ai/library/gemma:2b does not support tools"}"#));
+        assert!(tools_unsupported(404, r#"{"error":{"message":"No endpoints found that support tool use"}}"#));
+        assert!(!tools_unsupported(400, r#"{"error":"context length exceeded"}"#));
+        assert!(!tools_unsupported(429, "tools not supported"));
+    }
+
+    #[test]
+    fn friendly_http_errors() {
+        assert!(http_error_message(429, "slow down").contains("free-tier quota"));
+        assert!(http_error_message(401, "").contains("API key"));
+        assert!(http_error_message(500, "boom").starts_with("HTTP 500"));
     }
 }

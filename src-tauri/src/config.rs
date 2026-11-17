@@ -88,7 +88,7 @@ pub struct AppearanceConfig {
 
 impl Default for AppearanceConfig {
     fn default() -> Self {
-        Self { accent: "violet".into(), opacity: 0.92, font_size: 14, compact: false, reduce_motion: false }
+        Self { accent: "violet".into(), opacity: 0.98, font_size: 14, compact: false, reduce_motion: false }
     }
 }
 

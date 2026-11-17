@@ -76,3 +76,20 @@ describe("helpers", () => {
     expect(acceleratorFromEvent({ ctrlKey: true, shiftKey: false, altKey: false, metaKey: false, key: "Control", code: "ControlLeft" })).toBeNull();
   });
 });
+
+import { PROVIDER_PRESETS, presetForUrl, sortModels } from "./presets";
+
+describe("provider presets", () => {
+  it("have unique ids and https or localhost URLs", () => {
+    const ids = new Set(PROVIDER_PRESETS.map((p) => p.id));
+    expect(ids.size).toBe(PROVIDER_PRESETS.length);
+    for (const p of PROVIDER_PRESETS) expect(p.base_url).toMatch(/^(https:\/\/|http:\/\/localhost:)/);
+  });
+  it("matches a preset by URL ignoring trailing slash and case", () => {
+    expect(presetForUrl("https://API.groq.com/openai/v1/")?.id).toBe("groq");
+    expect(presetForUrl("http://example.com/v1")).toBeUndefined();
+  });
+  it("sorts free models first", () => {
+    expect(sortModels([{ id: "b" }, { id: "z:free" }, { id: "a" }]).map((m) => m.id)).toEqual(["z:free", "a", "b"]);
+  });
+});

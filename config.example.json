@@ -1,5 +1,5 @@
 {
-  "appearance": { "accent": "violet", "opacity": 0.92, "font_size": 14, "compact": false, "reduce_motion": false },
+  "appearance": { "accent": "violet", "opacity": 0.98, "font_size": 14, "compact": false, "reduce_motion": false },
   "window": { "width": 860, "height": 640, "position": "center", "always_on_top": true, "hide_on_blur": false },
   "ai": {
     "provider": "claude_code",

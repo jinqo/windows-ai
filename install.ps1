@@ -22,11 +22,13 @@ $tmp = Join-Path $env:TEMP ("windows-ai-" + [guid]::NewGuid())
 New-Item -ItemType Directory -Path $tmp | Out-Null
 $exe = Join-Path $tmp $installer.name
 Write-Host "Downloading $($installer.name) ($($release.tag_name))..."
-Invoke-WebRequest $installer.browser_download_url -OutFile $exe -Headers $Headers
+Invoke-WebRequest $installer.browser_download_url -OutFile $exe -Headers $Headers -UseBasicParsing
 
 if ($sums) {
-    $expected = ((Invoke-WebRequest $sums.browser_download_url -Headers $Headers).Content -split "`n" |
-        Where-Object { $_ -match [regex]::Escape($installer.name) } | Select-Object -First 1) -split '\s+' | Select-Object -First 1
+    $sumsFile = Join-Path $tmp 'SHA256SUMS.txt'
+    Invoke-WebRequest $sums.browser_download_url -OutFile $sumsFile -Headers $Headers -UseBasicParsing
+    $expected = ((Get-Content $sumsFile) |
+        Where-Object { ($_ -replace '^\S+\s+', '').Trim().Replace(' ', '.') -eq $installer.name.Replace(' ', '.') } | Select-Object -First 1) -split '\s+' | Select-Object -First 1
     $actual = (Get-FileHash $exe -Algorithm SHA256).Hash
     if (-not $expected -or $actual -ne $expected.ToUpper()) { Remove-Item $tmp -Recurse -Force; throw "Checksum mismatch - aborting." }
     Write-Host "Checksum verified."

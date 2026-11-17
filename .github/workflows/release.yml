@@ -66,7 +66,8 @@ jobs:
         shell: pwsh
         run: |
           New-Item -ItemType Directory out | Out-Null
-          Copy-Item src-tauri/target/release/bundle/nsis/*-setup.exe out/
+          # No spaces: GitHub renames them in asset names, which would break SHA256SUMS lookups.
+          Get-ChildItem src-tauri/target/release/bundle/nsis/*-setup.exe | ForEach-Object { Copy-Item $_.FullName (Join-Path out ($_.Name -replace ' ', '')) }
           Copy-Item extensions/vscode/*.vsix out/
           if (Test-Path shell-ext/package/out/WindowsAI.msix) { Copy-Item shell-ext/package/out/WindowsAI.msix out/ }
           Compress-Archive -Path extensions/browser/* -DestinationPath out/windows-ai-browser-extension.zip

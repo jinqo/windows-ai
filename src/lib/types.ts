@@ -27,7 +27,7 @@ export interface AppConfig {
     auto_send_transcript: boolean;
   };
   shortcuts: { toggle_overlay: string };
-  startup: { launch_on_login: boolean; start_hidden: boolean };
+  startup: { launch_on_login: boolean; start_hidden: boolean; onboarded: boolean };
   permissions: {
     tool_modes: Record<string, PermissionMode>;
     directories: DirectoryScope[]; apps: ApprovedApp[]; commands: AllowedCommand[];

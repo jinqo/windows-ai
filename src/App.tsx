@@ -7,6 +7,8 @@ import { ChatView } from "./features/chat/ChatView";
 import { SettingsView } from "./features/settings/SettingsView";
 import { MemoryView } from "./features/memory/MemoryView";
 import { ActivityView } from "./features/activity/ActivityView";
+import { Onboarding } from "./features/onboarding/Onboarding";
+import { UpdateBanner } from "./features/updater/UpdateBanner";
 import { useBackendEvents } from "./hooks/useBackendEvents";
 import { useApp } from "./store/app";
 import { api } from "./lib/api";
@@ -47,6 +49,7 @@ export default function App() {
   return (
     <div className="shell">
       <TitleBar />
+      <UpdateBanner />
       <div className="body">
         <Sidebar />
         {view === "chat" && <ChatView />}
@@ -54,6 +57,7 @@ export default function App() {
         {view === "memory" && <MemoryView />}
         {view === "activity" && <ActivityView />}
         <ApprovalDialog />
+        <Onboarding />
         <Toasts />
       </div>
     </div>

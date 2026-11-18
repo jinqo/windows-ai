@@ -1,14 +1,37 @@
 {
   "manifest_version": 3,
   "name": "Windows AI",
-  "version": "0.1.0",
+  "version": "0.1.2",
   "description": "Send selected text or the current page to the Windows AI desktop assistant.",
   "key": "MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAqdlZeAZXqVtDQymGK3YaVc0OIJGRV23KRakv6ta+DBY91Wgty6h6AY4/g7TcOcOCmFQD831GmGy5UxfIVTo9FGtmqIjL8VLPt48aRharl7RGdR67d13erSlOm81v8RIW8tzdPh3mtKtSaPI+nXfEpDj/PRo2cnmxePKM2Npwqzma2VO9MwJFB34qeB3IqxT4nEKPfRoCV0SkqePxO98afdGTZ1SEOpZim7R+eG7g9DfxwZTSnu9TLJVsCxTVskVYysO2pVxOfgEfwKGJ3uESHA+HfXcOTalKxvwY9jtq7FdpHLKyOxcbCPIkZTEGGEGCR/6VA+8RSy7qNNKNMsPZdQIDAQAB",
-  "permissions": ["contextMenus", "nativeMessaging", "activeTab", "scripting"],
-  "background": { "service_worker": "background.js", "type": "module" },
-  "action": { "default_title": "Windows AI", "default_popup": "popup.html", "default_icon": { "32": "icon32.png", "128": "icon128.png" } },
-  "icons": { "32": "icon32.png", "128": "icon128.png" },
+  "permissions": [
+    "contextMenus",
+    "nativeMessaging",
+    "activeTab",
+    "scripting"
+  ],
+  "background": {
+    "service_worker": "background.js",
+    "type": "module"
+  },
+  "action": {
+    "default_title": "Windows AI",
+    "default_popup": "popup.html",
+    "default_icon": {
+      "32": "icon32.png",
+      "128": "icon128.png"
+    }
+  },
+  "icons": {
+    "32": "icon32.png",
+    "128": "icon128.png"
+  },
   "commands": {
-    "ask-selection": { "suggested_key": { "default": "Ctrl+Shift+Y" }, "description": "Ask Windows AI about the selection" }
+    "ask-selection": {
+      "suggested_key": {
+        "default": "Ctrl+Shift+Y"
+      },
+      "description": "Ask Windows AI about the selection"
+    }
   }
 }

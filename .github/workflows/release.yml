@@ -12,11 +12,13 @@ jobs:
   build:
     runs-on: windows-latest
     env:
+      TAURI_SIGNING_PRIVATE_KEY: ${{ secrets.TAURI_SIGNING_PRIVATE_KEY }}
+      TAURI_SIGNING_PRIVATE_KEY_PASSWORD: ''
       HAS_CERT: ${{ secrets.MSIX_PFX_BASE64 != '' }}
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
 
-      - uses: actions/setup-node@v4
+      - uses: actions/setup-node@v5
         with:
           node-version: 22
           cache: npm
@@ -66,8 +68,19 @@ jobs:
         shell: pwsh
         run: |
           New-Item -ItemType Directory out | Out-Null
+          $v = (Get-Content src-tauri/tauri.conf.json -Raw | ConvertFrom-Json).version
           # No spaces: GitHub renames them in asset names, which would break SHA256SUMS lookups.
-          Get-ChildItem src-tauri/target/release/bundle/nsis/*-setup.exe | ForEach-Object { Copy-Item $_.FullName (Join-Path out ($_.Name -replace ' ', '')) }
+          $src = Get-ChildItem src-tauri/target/release/bundle/nsis/*-setup.exe | Select-Object -First 1
+          $setupName = "WindowsAI_${v}_x64-setup.exe"
+          Copy-Item $src.FullName "out/$setupName"
+          # Updater signature over the final bytes (re-signed after optional Authenticode signing).
+          npx tauri signer sign "out/$setupName"
+          if ($LASTEXITCODE) { throw "updater signing failed" }
+          $sig = (Get-Content "out/$setupName.sig" -Raw).Trim()
+          $url = "https://github.com/${{ github.repository }}/releases/download/v$v/$setupName"
+          $platform = @{ signature = $sig; url = $url }
+          @{ version = $v; notes = "See https://github.com/${{ github.repository }}/releases/tag/v$v"; pub_date = (Get-Date).ToUniversalTime().ToString("yyyy-MM-ddTHH:mm:ssZ"); platforms = @{ "windows-x86_64" = $platform; "windows-x86_64-nsis" = $platform } } |
+            ConvertTo-Json -Depth 5 | Set-Content -Encoding utf8NoBOM out/latest.json
           Copy-Item extensions/vscode/*.vsix out/
           if (Test-Path shell-ext/package/out/WindowsAI.msix) { Copy-Item shell-ext/package/out/WindowsAI.msix out/ }
           Compress-Archive -Path extensions/browser/* -DestinationPath out/windows-ai-browser-extension.zip

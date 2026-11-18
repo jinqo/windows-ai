@@ -319,3 +319,21 @@ a { color: var(--accent-2); }
   .messages { padding: 14px 12px 8px; }
   .composer-wrap { padding: 6px 10px 10px; }
 }
+
+/* ---------- first-run setup ---------- */
+.onb { width: min(560px, 100%); display: flex; flex-direction: column; gap: 12px; }
+.onb h3 { display: flex; align-items: center; gap: 8px; }
+.onb-choices { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; }
+.onb-choice { display: flex; flex-direction: column; align-items: flex-start; gap: 8px; text-align: left; padding: 12px; border-radius: 12px; border: 1px solid var(--border); background: rgba(255,255,255,0.03); color: inherit; cursor: pointer; font: inherit; }
+.onb-choice:hover { border-color: var(--border-strong); }
+.onb-choice.on { border-color: rgb(139 92 246 / 0.8); background: rgb(139 92 246 / 0.12); }
+.onb-choice b { display: block; font-size: 13px; }
+.onb-choice small { display: block; margin-top: 2px; font-size: 11.5px; opacity: 0.7; line-height: 1.4; }
+.onb-step { display: flex; flex-direction: column; gap: 8px; }
+.onb-actions { display: flex; align-items: center; gap: 8px; }
+@media (max-width: 520px) { .onb-choices { grid-template-columns: 1fr; } }
+
+/* ---------- update banner ---------- */
+.update-banner { display: flex; align-items: center; gap: 10px; margin: 0 12px 6px; padding: 8px 10px 8px 12px; border-radius: 12px; border: 1px solid rgb(139 92 246 / 0.5); background: rgb(139 92 246 / 0.12); font-size: 12.5px; }
+.update-banner span { flex: 1; }
+.update-banner .btn { padding: 4px 10px; font-size: 12px; }

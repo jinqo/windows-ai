@@ -1,0 +1,41 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+jobs:
+  test:
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v5
+
+      - uses: actions/setup-node@v5
+        with:
+          node-version: 22
+          cache: npm
+
+      - uses: dtolnay/rust-toolchain@stable
+
+      - uses: Swatinem/rust-cache@v2
+        with:
+          workspaces: src-tauri
+
+      - run: npm ci
+
+      - name: Test
+        shell: bash
+        run: |
+          npm run build:shell
+          npm run typecheck
+          npm test
+          cargo test --manifest-path src-tauri/Cargo.toml --lib
+
+      - name: Validate config files
+        shell: bash
+        run: |
+          for f in package.json src-tauri/tauri.conf.json config.example.json src-tauri/capabilities/default.json; do
+            node -e "JSON.parse(require('fs').readFileSync('$f','utf8'))" || { echo "invalid JSON: $f"; exit 1; }
+            if head -c 3 "$f" | grep -q $'\xEF\xBB\xBF'; then echo "BOM in $f"; exit 1; fi
+          done

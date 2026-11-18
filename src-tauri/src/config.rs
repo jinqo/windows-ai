@@ -313,11 +313,13 @@ impl Default for ShortcutConfig {
 pub struct StartupConfig {
     pub launch_on_login: bool,
     pub start_hidden: bool,
+    /// First-run setup finished (or skipped).
+    pub onboarded: bool,
 }
 
 impl Default for StartupConfig {
     fn default() -> Self {
-        Self { launch_on_login: false, start_hidden: false }
+        Self { launch_on_login: false, start_hidden: false, onboarded: false }
     }
 }
 

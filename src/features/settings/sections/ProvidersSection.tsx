@@ -57,7 +57,7 @@ function FreeProviderPanel({ draft, update }: SectionProps) {
   );
 }
 
-function SecretField({ name, label, hint }: { name: string; label: string; hint: string }) {
+export function SecretField({ name, label, hint }: { name: string; label: string; hint: string }) {
   const [status, setStatus] = useState<{ stored: boolean; from_env: boolean } | null>(null);
   const [value, setValue] = useState("");
   const toast = useApp((s) => s.toast);

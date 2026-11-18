@@ -43,7 +43,7 @@ A native-feeling AI assistant for Windows 11. Press **Alt+Space** anywhere to op
 irm https://raw.githubusercontent.com/jinqo/windows-ai/main/install.ps1 | iex
 ```
 
-Downloads the latest release installer, verifies its SHA-256 checksum, installs per-user (no admin) and starts Windows AI.
+Downloads the latest release installer, verifies its SHA-256 checksum, installs per-user (no admin) and starts Windows AI. On first launch a short setup lets you pick Claude, a free cloud model or a local model, and tests the connection. The app updates itself from GitHub Releases (signed update packages).
 
 ### From the installer
 Download `Windows AI_<version>_x64-setup.exe` from Releases and run it. Windows AI starts in the tray; press **Alt+Space**.
@@ -114,7 +114,7 @@ Settings → AI providers → **API key**. Paste a key from console.anthropic.co
 | Selected text (any app) | On by default. Select text → **Ctrl+Shift+Space** → toolbar appears at the cursor (or the full assistant — configurable). |
 | File Explorer | Settings → Integrations → File Explorer → **Install**. Right-click files/folders → *Windows AI* (classic menu: *Show more options*). For the Windows 11 top-level menu, register the signed sparse package: `shell-ext/package/register.ps1` (see below). |
 | Chrome / Edge | Settings → Integrations → Chrome & Edge → **Register**. Then `chrome://extensions` (or `edge://extensions`) → Developer mode → **Load unpacked** → `extensions/browser`. |
-| VS Code | `code --install-extension extensions/vscode/windows-ai-vscode-0.1.0.vsix`. Right-click in the editor → *Windows AI*, or **Ctrl+Alt+A**. |
+| VS Code | Download `windows-ai-vscode-<version>.vsix` from [Releases](https://github.com/jinqo/windows-ai/releases/latest), then `code --install-extension windows-ai-vscode-<version>.vsix`. Right-click in the editor → *Windows AI*, or **Ctrl+Alt+A**. |
 
 All integrations deliver content into the same assistant, conversations, settings and memory. Content is sent to the AI only after you press Send (quick actions from the toolbar send immediately after you click them).
 

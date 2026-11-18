@@ -1,7 +1,7 @@
 {
   "name": "windows-ai",
   "private": true,
-  "version": "0.1.1",
+  "version": "0.1.2",
   "type": "module",
   "description": "Windows AI - a native AI assistant overlay for Windows",
   "scripts": {
@@ -21,6 +21,8 @@
     "@tauri-apps/plugin-autostart": "^2.3.0",
     "@tauri-apps/plugin-global-shortcut": "^2.2.0",
     "@tauri-apps/plugin-opener": "^2.2.0",
+    "@tauri-apps/plugin-process": "^2.4.0",
+    "@tauri-apps/plugin-updater": "^2.14.1",
     "highlight.js": "^11.11.1",
     "lucide-react": "^0.511.0",
     "react": "^18.3.1",

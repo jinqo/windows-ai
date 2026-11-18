@@ -23,7 +23,7 @@
     "auto_send_transcript": false
   },
   "shortcuts": { "toggle_overlay": "Alt+Space" },
-  "startup": { "launch_on_login": false, "start_hidden": false },
+  "startup": { "launch_on_login": false, "start_hidden": false, "onboarded": true },
   "permissions": {
     "tool_modes": { "open_url": "ask", "system_info": "allow" },
     "directories": [

@@ -64,6 +64,8 @@ npx tauri dev                            # run app
 npx tauri build                          # release exe + NSIS installer
 ```
 
+`npx tauri build` also creates signed updater artifacts, so it needs `TAURI_SIGNING_PRIVATE_KEY` (path or contents of `~/.tauri/windows-ai-updater.key`, never committed; CI uses the repo secret of the same name). Losing that key means existing installs can no longer update.
+
 Toolchain: Rust `x86_64-pc-windows-gnu` with MinGW (windres used by build.rs to embed the app manifest). MSVC also supported by build.rs. Crate type is `rlib` only (GNU ld cannot export a Tauri cdylib).
 
 ## Security boundaries (do not weaken)
@@ -98,7 +100,8 @@ Toolchain: Rust `x86_64-pc-windows-gnu` with MinGW (windres used by build.rs to 
 | Automation tasks (plan, run, retry, skip, cancel) | Done |
 | Voice: Windows STT, Whisper STT, TTS | Done; Windows STT needs mic + Online speech recognition |
 | Selection capture (UIA + clipboard fallback) + floating toolbar | Done |
-| Explorer context menu (classic verbs, HKCU) | Done; Win11 top-level menu not supported (needs MSIX identity) |
+| Explorer context menu (classic verbs, HKCU) + Win11 top-level menu (signed sparse MSIX, `shell-ext/`) | Done; public MSIX needs a trusted cert |
+| First-run setup (`features/onboarding`) + auto-update (`features/updater`, tauri-plugin-updater) | Done |
 | Chrome/Edge extension + native messaging host | Done |
 | VS Code extension | Done |
 

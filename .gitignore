@@ -17,3 +17,5 @@ shell-ext/package/out/
 *.pvk
 *.snk
 *.msix
+
+LAUNCH_POSTS.md

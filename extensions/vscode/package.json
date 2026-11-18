@@ -2,7 +2,7 @@
   "name": "windows-ai-vscode",
   "displayName": "Windows AI",
   "description": "Send selected code, files and diagnostics to the Windows AI desktop assistant.",
-  "version": "0.1.2",
+  "version": "0.1.3",
   "publisher": "windows-ai",
   "license": "MIT",
   "engines": {

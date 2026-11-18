@@ -512,9 +512,19 @@ pub fn read_config(path: &Path) -> AppResult<AppConfig> {
         return Ok(AppConfig::default());
     }
     let text = std::fs::read_to_string(path)?;
-    let cfg: AppConfig = serde_json::from_str(&text)
+    let mut cfg: AppConfig = serde_json::from_str(&text)
         .map_err(|e| AppError::Config(format!("invalid config.json: {e}")))?;
+    migrate(&mut cfg);
     Ok(cfg)
+}
+
+/// Upgrades values saved by older versions.
+pub fn migrate(cfg: &mut AppConfig) {
+    // 0.1.0 default was 0.92; WebView2 can't blur the desktop behind a transparent
+    // window, so that let the wallpaper show through. Only the untouched default moves.
+    if (cfg.appearance.opacity - 0.92).abs() < 0.001 {
+        cfg.appearance.opacity = 0.98;
+    }
 }
 
 pub fn write_config(path: &Path, cfg: &AppConfig) -> AppResult<()> {
@@ -538,6 +548,12 @@ mod tests {
 
     #[test]
     fn partial_json_fills_defaults() {
+        let mut old: AppConfig = serde_json::from_str(r#"{"appearance":{"opacity":0.92}}"#).unwrap();
+        migrate(&mut old);
+        assert!((old.appearance.opacity - 0.98).abs() < 0.001, "old default opacity is upgraded");
+        let mut custom: AppConfig = serde_json::from_str(r#"{"appearance":{"opacity":0.8}}"#).unwrap();
+        migrate(&mut custom);
+        assert!((custom.appearance.opacity - 0.8).abs() < 0.001, "user-chosen opacity is kept");
         let cfg: AppConfig = serde_json::from_str(r#"{"ai":{"provider":"openai_compatible"}}"#).unwrap();
         assert_eq!(cfg.ai.provider, "openai_compatible");
         assert_eq!(cfg.ai.anthropic.model, "claude-opus-5-5");

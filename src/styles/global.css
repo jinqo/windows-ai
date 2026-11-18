@@ -277,7 +277,7 @@ a { color: var(--accent-2); }
 .mono { font-family: var(--mono); font-size: 12px; }
 .ellipsis { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .seg { display: inline-flex; padding: 2px; border-radius: 9px; background: rgba(0,0,0,0.25); border: 1px solid var(--border); }
-.seg button { height: 26px; padding: 0 10px; border: 0; border-radius: 7px; background: transparent; color: var(--text-3); cursor: pointer; font-size: 12px; }
+.seg button { height: 26px; padding: 0 10px; white-space: nowrap; border: 0; border-radius: 7px; background: transparent; color: var(--text-3); cursor: pointer; font-size: 12px; }
 .seg button.on { background: var(--surface-3); color: var(--text); }
 .seg button.on.allow { color: var(--ok); } .seg button.on.ask { color: var(--warn); } .seg button.on.deny { color: var(--err); }
 .seg button:disabled { opacity: 0.35; cursor: not-allowed; }

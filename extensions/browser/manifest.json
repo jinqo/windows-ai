@@ -1,7 +1,7 @@
 {
   "manifest_version": 3,
   "name": "Windows AI",
-  "version": "0.1.2",
+  "version": "0.1.3",
   "description": "Send selected text or the current page to the Windows AI desktop assistant.",
   "key": "MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAqdlZeAZXqVtDQymGK3YaVc0OIJGRV23KRakv6ta+DBY91Wgty6h6AY4/g7TcOcOCmFQD831GmGy5UxfIVTo9FGtmqIjL8VLPt48aRharl7RGdR67d13erSlOm81v8RIW8tzdPh3mtKtSaPI+nXfEpDj/PRo2cnmxePKM2Npwqzma2VO9MwJFB34qeB3IqxT4nEKPfRoCV0SkqePxO98afdGTZ1SEOpZim7R+eG7g9DfxwZTSnu9TLJVsCxTVskVYysO2pVxOfgEfwKGJ3uESHA+HfXcOTalKxvwY9jtq7FdpHLKyOxcbCPIkZTEGGEGCR/6VA+8RSy7qNNKNMsPZdQIDAQAB",
   "permissions": [
